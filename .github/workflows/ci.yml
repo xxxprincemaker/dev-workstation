@@ -1,0 +1,19 @@
+name: Dev Workstation V8 CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  smoke:
+    name: Smoke tests / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bash syntax and read-only integration tests
+        run: bash tests/test_smoke.sh
+      - name: Read-only preview
+        run: bash install.sh --plan --only=tmux --diff

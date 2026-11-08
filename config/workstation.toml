@@ -1,0 +1,11 @@
+# Dev Workstation V8 — supported simple TOML settings
+# Profiles: base or full
+[workstation]
+profile = "full"
+
+[features]
+java21 = false
+nerd_font = true
+terminal = true
+# Changing the login shell always asks separately.
+default_shell = false

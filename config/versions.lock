@@ -1,0 +1,12 @@
+# Bootstrap source references used by the migrated V7 installers.
+# This is a reference/audit file, NOT a full reproducible dependency lock.
+# NVM install script is referenced by tag; other tools resolve at runtime.
+nvm_installer_ref=v0.41.0
+java_major=25
+node_release_channel=lts
+sdkman_release_channel=stable
+go_release_channel=stable
+neovim_release_channel=latest
+# IMPORTANT: LazyVim starter, Oh My Zsh plugins and tmux plugins are mutable
+# Git HEAD references. For high-assurance use, pin commits and maintain a vetted
+# lock + checksum manifest before production deployment.
