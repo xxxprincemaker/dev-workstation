@@ -14,17 +14,17 @@ HOME="$TEMP/home"; mkdir -p "$HOME"
 export HOME
 export DEV_WORKSTATION_STATE_DIR="$HOME/.local/state/dev-workstation"
 export DEV_WORKSTATION_DATA_DIR="$HOME/.local/share/dev-workstation"
-check_output="$("$ROOT/install.sh" --check --only=tmux)"
+check_output="$(bash "$ROOT/install.sh" --check --only=tmux)"
 [[ "$check_output" == *'Mode: check'* ]] || fail 'check output'
 [[ ! -e "$DEV_WORKSTATION_STATE_DIR" ]] || fail 'check changed state'
 pass '--check is read-only'
-plan_output="$("$ROOT/install.sh" --plan --only=tmux)"
+plan_output="$(bash "$ROOT/install.sh" --plan --only=tmux)"
 [[ "$plan_output" == *'Mode: install'* && "$plan_output" == *'Read-only'* ]] || fail 'plan output'
 [[ ! -e "$DEV_WORKSTATION_STATE_DIR" ]] || fail 'plan changed state'
 pass '--plan is read-only'
-[[ "$("$ROOT/install.sh" --help)" == *'--yes-updates'* ]] || fail 'missing CLI help'
+[[ "$(bash "$ROOT/install.sh" --help)" == *'--yes-updates'* ]] || fail 'missing CLI help'
 pass 'help available'
-if "$ROOT/install.sh" --update --yes-updates --plan >/dev/null 2>&1; then
+if bash "$ROOT/install.sh" --update --yes-updates --plan >/dev/null 2>&1; then
   fail 'invalid flag validation'
 else pass '--yes-updates rejected outside update mode'; fi
 # Test V8 inventory without installing system packages.
@@ -100,11 +100,11 @@ cat > "$MOCK/brew" <<'SH'
 case "$1" in shellenv) printf '%s\n' 'export HOMEBREW_NO_AUTO_UPDATE=1';; *) exit 1;; esac
 SH
 chmod +x "$MOCK/"*
-mac_output="$(PATH="$MOCK:$PATH" "$ROOT/install.sh" --check --only=tmux)"
+mac_output="$(PATH="$MOCK:$PATH" bash "$ROOT/install.sh" --check --only=tmux)"
 [[ "$mac_output" == *'macOS 15.5'* && "$mac_output" == *'| brew'* ]] || fail 'Darwin detection'
 pass 'macOS / Homebrew discovery (simulated)'
 export_file="$TEMP/exported-profile.toml"
-"$ROOT/install.sh" --export-profile="$export_file" >/dev/null
+bash "$ROOT/install.sh" --export-profile="$export_file" >/dev/null
 [[ -f "$export_file" && -f "$TEMP/exported-profile.versions.txt" ]] || fail 'profile export missing'
 grep -Fq 'profile = "full"' "$export_file" || fail 'exported wrong profile'
 pass 'portable export excludes secrets and writes settings'

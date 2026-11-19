@@ -276,6 +276,20 @@ if (( $+functions[history-substring-search-up] )); then
   bindkey '^[[A' history-substring-search-up
   bindkey '^[[B' history-substring-search-down
 fi
+# SDKMAN candidates stay on PATH; its shell initialization waits for the first `sdk` call.
+if [[ -n "${SDKMAN_DIR:-}" && -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
+  if [[ -d "$SDKMAN_DIR/candidates/java/current" ]]; then
+    export JAVA_HOME="$SDKMAN_DIR/candidates/java/current"
+  fi
+  for sdkman_bin in "$SDKMAN_DIR"/candidates/*/current/bin(N/); do
+    [[ ":$PATH:" == *":$sdkman_bin:"* ]] || path=("$sdkman_bin" $path)
+  done
+  sdk() {
+    unfunction sdk
+    source "$SDKMAN_DIR/bin/sdkman-init.sh" || return $?
+    sdk "$@"
+  }
+fi
 # Seletores difusos, navegacao por projetos e direnv sem auto-aprovar .envrc.
 if (( $+commands[zoxide] )); then eval "$(zoxide init zsh)"; fi
 if (( $+commands[direnv] )); then eval "$(direnv hook zsh)"; fi
@@ -303,9 +317,15 @@ cat > "$TMP_DIR/dev-zshrc" <<'V7_DEV_ZSHRC'
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="spaceship"
 zstyle ':omz:update' mode disabled # atualizacoes do Oh My Zsh devem ser intencionais
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+zstyle ':omz:plugins:nvm' lazy yes
 plugins=(git sudo colored-man-pages extract command-not-found fzf
-  docker docker-compose kubectl helm golang mvn gradle npm nvm
+  nvm
   zsh-autosuggestions zsh-completions zsh-history-substring-search)
+# Tool-specific aliases/completions are opt-in; set this in ~/.zshenv to enable them.
+if [[ "${DEV_WORKSTATION_ZSH_TOOL_PLUGINS:-0}" == 1 ]]; then
+  plugins+=(docker docker-compose kubectl helm golang mvn gradle npm)
+fi
 # fzf-tab e carregado apenas quando instalado; syntax-highlighting fica por ultimo.
 [[ -d "$ZSH/custom/plugins/fzf-tab" ]] && plugins+=(fzf-tab)
 plugins+=(zsh-syntax-highlighting)
@@ -377,10 +397,14 @@ else
     export PATH="$HOME/.local/share/dev-workstation/go/current/bin:$PATH"
   fi
 fi
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-export SDKMAN_DIR="$HOME/.sdkman"
-[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && . "$SDKMAN_DIR/bin/sdkman-init.sh"
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+if [ -z "${ZSH_VERSION:-}" ]; then
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+fi
+export SDKMAN_DIR="${SDKMAN_DIR:-$HOME/.sdkman}"
+if [ -z "${ZSH_VERSION:-}" ]; then
+  [ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && . "$SDKMAN_DIR/bin/sdkman-init.sh"
+fi
 [ -f "$HOME/.config/dev-bootstrap/custom.sh" ] && . "$HOME/.config/dev-bootstrap/custom.sh"
 ENVFILE
   write_owned "$envfile" "$TMP_DIR/v7-env.sh" '# dev-workstation-v7: env-managed'
