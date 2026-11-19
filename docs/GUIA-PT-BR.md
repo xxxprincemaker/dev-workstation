@@ -73,6 +73,8 @@ No macOS, Docker Desktop é instalado como cask Homebrew, mas é necessário abr
 
 O instalador preserva arquivos pessoais, detecta arquivos previamente gerenciados por marcadores V7 e cria backups antes de alterá-los. Para arquivos conflitantes, a opção `--replace-config` permite substituição, mas **sempre revise o diff primeiro**.
 
+Para abrir o Zsh mais rápido, os plugins específicos de Docker, Kubernetes, Go, Maven, Gradle e npm ficam desativados por padrão; para reativá-los, defina `DEV_WORKSTATION_ZSH_TOOL_PLUGINS=1` em `~/.zshenv`. NVM carrega sob demanda, e SDKMAN só inicializa quando você executa `sdk`; os executáveis `current` do SDKMAN continuam no `PATH`. O carregamento do Bash permanece igual.
+
 O tmux utiliza `Ctrl+A`: `?` ajuda, `s` sessões, `w` janelas, `h/j/k/l` painéis, `|`/`-` divisões, `z` zoom, `g` LazyGit, `D` Lazydocker e `K` K9s. Os pop-ups precisam de tmux recente e dos programas associados. O Neovim usa LazyVim com renderização Markdown e extras Full Dev. Depois de instalar, abra `nvim` e execute `:Lazy sync` e `:LazyHealth`.
 
 ## 6. Reverter e desinstalar
